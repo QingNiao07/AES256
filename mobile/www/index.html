@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#2563eb" />
+<title>AES-256 加密工具箱 · 移动版</title>
+<link rel="manifest" href="./manifest.webmanifest" />
+<link rel="apple-touch-icon" href="./icons/icon-192.png" />
+<style>
+  :root {
+    --bg: #0f172a; --card: #1e293b; --line: #334155; --fg: #e2e8f0; --mut: #94a3b8;
+    --pri: #2563eb; --ok: #16a34a; --err: #dc2626; --rad: 14px;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+    font: 16px/1.5 -apple-system, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+    padding: env(safe-area-inset-top) 0 calc(20px + env(safe-area-inset-bottom)); }
+  header { display: flex; align-items: center; gap: 10px; padding: 14px 16px; position: sticky; top: 0;
+    background: linear-gradient(180deg,#0f172a,rgba(15,23,42,.92)); backdrop-filter: blur(8px); z-index: 5; }
+  header h1 { font-size: 17px; margin: 0; flex: 1; }
+  header .sub { display:block; font-size: 11px; color: var(--mut); font-weight: 400; }
+  #lang { background: var(--card); color: var(--fg); border: 1px solid var(--line); border-radius: 10px;
+    padding: 7px 12px; font-size: 13px; }
+  .tabbar { display: flex; gap: 8px; padding: 0 16px 12px; }
+  .tabbar button { flex: 1; padding: 12px; border: 1px solid var(--line); background: var(--card);
+    color: var(--mut); border-radius: var(--rad); font-size: 15px; }
+  .tabbar button.active { background: var(--pri); color: #fff; border-color: var(--pri); }
+  .panel { padding: 4px 16px 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--rad); padding: 16px; margin-bottom: 14px; }
+  .drop { border: 2px dashed var(--line); border-radius: var(--rad); padding: 22px 14px; text-align: center; color: var(--mut); }
+  .drop.over { border-color: var(--pri); color: var(--fg); }
+  .drop input { display: none; }
+  .drop .btn2 { display: inline-block; margin-top: 6px; }
+  .file { margin-top: 10px; font-size: 13px; color: var(--ok); word-break: break-all; }
+  label { display:block; font-size: 13px; color: var(--mut); margin: 12px 0 6px; }
+  input[type=password], input[type=number], select { width: 100%; padding: 13px; font-size: 16px; border-radius: 12px;
+    border: 1px solid var(--line); background: #0b1220; color: var(--fg); }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  .btn { width: 100%; padding: 15px; font-size: 16px; border: 0; border-radius: 12px; background: var(--pri);
+    color: #fff; font-weight: 600; margin-top: 14px; }
+  .btn:active { filter: brightness(.92); }
+  .btn2 { padding: 10px 14px; border-radius: 10px; border: 1px solid var(--pri); background: transparent;
+    color: var(--pri); font-size: 14px; }
+  .msg { margin-top: 10px; font-size: 14px; min-height: 20px; }
+  .msg.ok { color: var(--ok); } .msg.err { color: var(--err); }
+  .meta-h { font-weight: 700; margin: 12px 0 6px; }
+  .meta-r { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .meta-r span { color: var(--mut); }
+  .hidden { display: none !important; }
+  .about { white-space: pre-wrap; font-size: 14px; line-height: 1.7; }
+  .overlay { position: fixed; inset: 0; background: rgba(2,6,23,.94); z-index: 50; padding: 18px; overflow-y: auto; }
+  .overlay h2 { font-size: 16px; margin: 4px 0 10px; }
+  .overlay .text { background: #0b1220; border: 1px solid var(--line); border-radius: 12px; padding: 14px;
+    white-space: pre-wrap; font-size: 13px; max-height: 46vh; overflow-y: auto; }
+  .overlay .gate { color: #f87171; font-size: 13px; margin: 12px 0; }
+  .overlay label.chk { display: flex; gap: 10px; align-items: flex-start; color: var(--fg); font-size: 14px; margin: 10px 0; }
+  .closed { padding: 40px 20px; text-align: center; color: var(--mut); }
+</style>
+</head>
+<body>
+<header>
+  <h1>AES-256 加密工具箱<span class="sub" data-i18n="subtitle"></span></h1>
+  <button id="lang" aria-label="switch language">EN</button>
+</header>
+
+<div class="tabbar">
+  <button data-tab="enc" data-i18n="tab_enc"></button>
+  <button data-tab="dec" data-i18n="tab_dec"></button>
+  <button data-tab="about" data-i18n="tab_about"></button>
+</div>
+
+<!-- 加密 -->
+<section id="panel-enc" class="panel">
+  <div class="card">
+    <div id="enc-drop" class="drop">
+      <div data-i18n="drop"></div>
+      <label class="btn2" for="enc-file" data-i18n="pick"></label>
+      <input type="file" id="enc-file" />
+    </div>
+    <div id="enc-name" class="file"></div>
+    <label data-i18n="password"></label>
+    <input type="password" id="enc-pwd" autocomplete="new-password" />
+    <label data-i18n="confirm"></label>
+    <input type="password" id="enc-pwd2" autocomplete="new-password" />
+    <label data-i18n="iterations"></label>
+    <input type="number" id="enc-iters" value="600000" min="100000" step="50000" />
+    <button id="btn-enc" class="btn" data-i18n="do_enc"></button>
+    <div id="enc-msg" class="msg"></div>
+  </div>
+</section>
+
+<!-- 解密 -->
+<section id="panel-dec" class="panel">
+  <div class="card">
+    <div id="dec-drop" class="drop">
+      <div data-i18n="drop"></div>
+      <label class="btn2" for="dec-file" data-i18n="pick"></label>
+      <input type="file" id="dec-file" accept=".aes256,application/octet-stream" />
+    </div>
+    <div id="dec-name" class="file"></div>
+    <label data-i18n="password"></label>
+    <input type="password" id="dec-pwd" autocomplete="current-password" />
+    <button id="btn-dec" class="btn" data-i18n="do_dec"></button>
+    <div id="dec-msg" class="msg"></div>
+    <div id="dec-meta"></div>
+  </div>
+</section>
+
+<!-- 关于 -->
+<section id="panel-about" class="panel">
+  <div class="card">
+    <div class="about" data-i18n="about_body"></div>
+    <button id="btn-install" class="btn hidden" data-i18n="install"></button>
+  </div>
+</section>
+
+<!-- 法务闸门 -->
+<div id="legal-gate-overlay" class="overlay hidden">
+  <h2 id="legal-header"></h2>
+  <div id="legal-body" class="text"></div>
+  <div id="legal-gate" class="gate"></div>
+  <label class="chk"><input type="checkbox" id="legal-check" /><span id="legal-accept-line"></span></label>
+  <div class="row">
+    <button id="btn-legal-decline" class="btn2"></button>
+    <button id="btn-legal-accept" class="btn" style="margin-top:0" disabled></button>
+  </div>
+</div>
+
+<script type="module" src="./js/app.js"></script>
+</body>
+</html>

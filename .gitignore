@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+env/
+
+# PyInstaller
+build/
+dist/
+*.spec
+
+# 运行数据（含审计链、SQLite、密钥文件，绝不入库）
+aes_log/
+*.key
+*.aes256
+*.bak
+*.part
+*.zip.enc
+
+# IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 测试 / 工具
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
+
+# 发布
+release/

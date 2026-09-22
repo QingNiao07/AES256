@@ -1,0 +1,23 @@
+# 必需
+pycryptodome>=3.19.0
+requests>=2.31.0
+
+# 推荐（安全强化 + 拖拽 + 托盘）
+argon2-cffi>=23.1.0
+tkinterdnd2>=0.4.2
+pystray>=0.19.5
+Pillow>=10.0.0
+
+# 可选（PySide6 版本 UI）
+PySide6>=6.6.0
+
+# 可选（扩展能力）
+cryptography>=41.0.0
+python-fido2>=1.1.0
+pykeepass>=4.0.0
+reportlab>=4.0.0
+
+# 开发
+pytest>=7.4.0
+pytest-cov>=4.1.0
+ruff>=0.3.0
